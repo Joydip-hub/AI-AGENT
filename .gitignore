@@ -69,3 +69,8 @@ htmlcov/
 # Model files (large)
 models/*.bin
 models/*.pt
+
+# Source code backup (proprietary - not for public distribution)
+src_backup/
+src_protected/
+protect_code.py
