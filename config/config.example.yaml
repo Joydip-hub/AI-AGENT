@@ -1,0 +1,58 @@
+# Configuration Example for AI-AGENT
+# Copy this file to config.yaml and update with your settings
+
+# Agent Configuration
+agent:
+  max_history: 50
+  default_language: en
+  auto_detect_language: true
+  temperature: 0.7
+  max_tokens: 2000
+
+# Model Configuration
+model:
+  name: gpt-3.5-turbo
+  provider: openai  # Options: openai, anthropic, google
+  fallback_model: gpt-3.5-turbo
+  
+# API Keys (Replace with your actual keys)
+api_keys:
+  openai: YOUR_OPENAI_API_KEY_HERE
+  anthropic: YOUR_ANTHROPIC_API_KEY_HERE
+  google: YOUR_GOOGLE_API_KEY_HERE
+
+# Conversation Settings
+conversation:
+  storage_path: ./data/conversations
+  auto_save: true
+  context_window: 10
+  session_timeout_minutes: 30
+
+# Language Settings
+language:
+  supported_languages:
+    - en  # English
+    - es  # Spanish
+    - fr  # French
+    - de  # German
+    - hi  # Hindi
+    - zh-cn  # Chinese Simplified
+    - ja  # Japanese
+    - ar  # Arabic
+    - ta  # Tamil
+    - te  # Telugu
+  default_fallback: en
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: ./logs/ai_agent.log
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+# Performance Settings
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 3600
+  max_concurrent_sessions: 100
