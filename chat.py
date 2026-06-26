@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 """
 AI-AGENT - Your AI Friend!
 Super simple, super fast!
+Double-click this file to start chatting!
 """
 
 import os
@@ -9,6 +11,14 @@ import time
 import json
 from datetime import datetime
 
+# Fix encoding for Windows
+if sys.platform == 'win32':
+    import locale
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except:
+        pass
+
 # Try to import colorama for colors
 try:
     from colorama import init, Fore, Style
@@ -16,18 +26,16 @@ try:
     COLORS = True
 except ImportError:
     COLORS = False
-    # Fake color class if colorama not installed
-    class FakeFore:
+    class Fore:
         CYAN = ""
         GREEN = ""
         YELLOW = ""
         RED = ""
         BLUE = ""
         WHITE = ""
-    class FakeStyle:
+        MAGENTA = ""
+    class Style:
         RESET_ALL = ""
-    Fore = FakeFore()
-    Style = FakeStyle()
 
 # Try to import langdetect
 try:
@@ -37,11 +45,10 @@ except ImportError:
     LANG_DETECT = False
 
 # ============================================
-# SIMPLE RESPONSES - NO HEAVY AI NEEDED!
+# FAST RESPONSES - INSTANT REPLIES!
 # ============================================
 
 RESPONSES = {
-    # Greetings
     'hello': {
         'en': "Hey there! I'm your AI friend! What's up?",
         'hi': "नमस्ते! मैं आपका AI दोस्त हूं! क्या हाल है?",
@@ -95,22 +102,22 @@ RESPONSES = {
         'fr': "Pas de problème! Avec plaisir!"
     },
     'help': {
-        'en': "I can chat with you about anything! Try asking me:\n- How are you?\n- Tell me a joke\n- What time is it?\n- Or just say hi!",
-        'hi': "मैं आपसे किसी भी विषय पर बात कर सकता हूं! मुझसे पूछें:\n- आप कैसे हैं?\n- मुझे एक जोक सुनाएं\n- कितने बजे हैं?\n- या बस नमस्ते कहें!",
-        'es': "¡Puedo hablar contigo de cualquier cosa! Prueba preguntarme:\n- ¿Cómo estás?\n- Cuéntame un chiste\n- ¿Qué hora es?\n- ¡O solo di hola!",
-        'fr': "Je peux discuter de tout avec toi! Essaie de me demander:\n- Comment vas-tu?\n- Raconte-moi une blague\n- Quelle heure est-il?\n- Ou dis juste salut!"
+        'en': "I can chat with you about anything! Try asking me:\n  - How are you?\n  - Tell me a joke\n  - What time is it?\n  - What's your name?\n  - Or just say hi!",
+        'hi': "मैं आपसे किसी भी विषय पर बात कर सकता हूं! मुझसे पूछें:\n  - आप कैसे हैं?\n  - मुझे एक जोक सुनाएं\n  - कितने बजे हैं?\n  - आपका नाम क्या है?\n  - या बस नमस्ते कहें!",
+        'es': "¡Puedo hablar contigo de cualquier cosa! Prueba:\n  - ¿Cómo estás?\n  - Cuéntame un chiste\n  - ¿Qué hora es?\n  - ¿Cómo te llamas?\n  - ¡O solo di hola!",
+        'fr': "Je peux discuter de tout! Essaie:\n  - Comment vas-tu?\n  - Raconte-moi une blague\n  - Quelle heure est-il?\n  - Comment tu t'appelles?\n  - Ou dis juste salut!"
     },
     'joke': {
-        'en': "Why don't scientists trust atoms? Because they make up everything! 😄",
-        'hi': "वैज्ञानिक परमाणुओं पर भरोसा क्यों नहीं करते? क्योंकि वे सब कुछ बनाते हैं! 😄",
-        'es': "¿Por qué los científicos no confían en los átomos? ¡Porque lo inventan todo! 😄",
-        'fr': "Pourquoi les scientifiques ne font-ils pas confiance aux atomes? Parce qu'ils inventent tout! 😄"
+        'en': "Why don't scientists trust atoms? Because they make up everything! :D",
+        'hi': "वैज्ञानिक परमाणुओं पर भरोसा क्यों नहीं करते? क्योंकि वे सब कुछ बनाते हैं! :D",
+        'es': "¿Por qué los científicos no confían en los átomos? ¡Porque lo inventan todo! :D",
+        'fr': "Pourquoi les scientifiques ne font-ils pas confiance aux atomes? Parce qu'ils inventent tout! :D"
     },
     'time': {
-        'en': f"It's {datetime.now().strftime('%I:%M %p')} right now! Time flies when you're chatting!",
-        'hi': f"अभी {datetime.now().strftime('%I:%M %p')} बज रहे हैं! बात करते समय बहुत जल्दी बीतता है!",
-        'es': f"¡Son las {datetime.now().strftime('%I:%M %p')} ahora! ¡El tiempo vuela cuando chateas!",
-        'fr': f"Il est {datetime.now().strftime('%I:%M %p')} en ce moment! Le temps file quand on discute!"
+        'en': "It's {} right now! Time flies when you're chatting!",
+        'hi': "अभी {} बज रहे हैं! बात करते समय बहुत जल्दी बीतता है!",
+        'es': "¡Son las {} ahora! ¡El tiempo vuela cuando chateas!",
+        'fr': "Il est {} en ce moment! Le temps file quand on discute!"
     },
     'name': {
         'en': "I'm AI-AGENT, your friendly AI assistant! You can call me Agent!",
@@ -120,23 +127,44 @@ RESPONSES = {
     },
     'age': {
         'en': "I'm brand new! Just born when you started this chat! Age is just a number anyway!",
-        'hi': "मैं बिल्कुल नया हूं! जब आपने यह चैट शुरू की तब मैं पैदा हुआ! उम्र तो बस एक नंबर है!",
-        'es': "¡Soy completamente nuevo! ¡Acabo de nacer cuando empezaste este chat! ¡La edad es solo un número!",
-        'fr': "Je suis tout neuf! Je viens de naître quand tu as commencé ce chat! L'âge n'est qu'un chiffre!"
+        'hi': "मैं बिल्कुल नया हूं! जब आपने यह चैट शुरू की तब मैं पैदा हुआ!",
+        'es': "¡Soy completamente nuevo! ¡Acabo de nacer cuando empezaste este chat!",
+        'fr': "Je suis tout neuf! Je viens de naître quand tu as commencé ce chat!"
+    },
+    'love': {
+        'en': "Aww, that's sweet! I love chatting with you too!",
+        'hi': "अरे वाह! मुझे भी आपसे बात करके बहुत अच्छा लगता है!",
+        'es': "¡Qué dulce! ¡A mí también me encanta hablar contigo!",
+        'fr': "C'est gentil! J'adore aussi discuter avec toi!"
+    },
+    'good': {
+        'en': "That's wonderful to hear! Keep being awesome!",
+        'hi': "यह सुनकर बहुत अच्छा लगा! ऐसे ही शानदार रहो!",
+        'es': "¡Qué bueno escuchar eso! ¡Sigue siendo genial!",
+        'fr': "Content de l'entendre! Continue comme ça!"
+    },
+    'bad': {
+        'en": "Oh no! I'm sorry to hear that. Things will get better! I'm here for you!",
+        'hi": "अरे नहीं! यह सुनकर दुख हुआ। सब ठीक हो जाएगा! मैं आपके साथ हूं!",
+        'es': "¡Oh no! Lo siento mucho. ¡Las cosas mejorarán! ¡Estoy aquí para ti!",
+        'fr': "Oh non! Désolé d'entendre ça. Ça ira mieux! Je suis là pour toi!"
     }
 }
 
 # Quick response patterns
 QUICK_PATTERNS = {
-    'hello': ['hello', 'hi', 'hey', 'hola', 'bonjour', 'hallo', 'ciao', 'namaste', 'ola', 'привет'],
-    'hi': ['how are you', 'how r u', 'howdy', 'sup', 'whats up', "what's up"],
-    'bye': ['bye', 'goodbye', 'see you', 'good night', 'goodnight', 'tata', 'cya'],
-    'thanks': ['thanks', 'thank you', 'thx', 'ty', 'thankx'],
-    'help': ['help', 'assist', 'support', 'what can you do'],
-    'joke': ['joke', 'funny', 'laugh', 'humor', 'make me laugh'],
-    'time': ['time', 'what time', 'current time', 'clock'],
-    'name': ['name', 'your name', 'who are you', 'what are you'],
-    'age': ['age', 'how old', 'when were you born']
+    'hello': ['hello', 'hi', 'hey', 'hola', 'bonjour', 'hallo', 'ciao', 'namaste', 'ola', 'привет', 'yo'],
+    'hi': ['how are you', 'how r u', 'howdy', 'sup', 'whats up', "what's up", 'how you doing'],
+    'bye': ['bye', 'goodbye', 'see you', 'good night', 'goodnight', 'tata', 'cya', 'later', 'gtg'],
+    'thanks': ['thanks', 'thank you', 'thx', 'ty', 'thankx', 'appreciate'],
+    'help': ['help', 'assist', 'support', 'what can you do', 'commands', 'options'],
+    'joke': ['joke', 'funny', 'laugh', 'humor', 'make me laugh', 'tell me a joke'],
+    'time': ['time', 'what time', 'current time', 'clock', 'what is the time'],
+    'name': ['name', 'your name', 'who are you', 'what are you', 'what is your name'],
+    'age': ['age', 'how old', 'when were you born', 'birthday'],
+    'love': ['love', 'i love', 'like you', 'awesome', 'amazing', 'cool', 'great'],
+    'good': ['good', 'fine', 'great', 'wonderful', 'fantastic', 'nice', 'happy'],
+    'bad': ['bad', 'sad', 'unhappy', 'terrible', 'awful', 'not good', 'upset']
 }
 
 def detect_lang(text):
@@ -180,51 +208,60 @@ def get_response(text):
             if pattern in text_lower:
                 if key in RESPONSES:
                     resp = RESPONSES[key]
-                    return resp.get(lang, resp.get('en', "I'm here to chat!"))
+                    result = resp.get(lang, resp.get('en', "I'm here to chat!"))
+                    # Handle time format
+                    if key == 'time':
+                        current_time = datetime.now().strftime('%I:%M %p')
+                        return result.format(current_time)
+                    return result
     
     # Default responses by language
     defaults = {
-        'en': f"I hear you! You said: '{text}'. Tell me more! I'm listening!",
-        'hi': f"मैंने सुना! आपने कहा: '{text}'. और बताओ! मैं सुन रहा हूं!",
-        'es': f"¡Te escuché! Dijiste: '{text}'. ¡Cuéntame más! ¡Te escucho!",
-        'fr': f"Je t'écoute! Tu as dit: '{text}'. Dis-moi plus! J'écoute!",
-        'de': f"Ich höre zu! Du hast gesagt: '{text}'. Erzähl mehr! Ich höre zu!",
-        'zh': f"我听到了！你说的是：'{text}'. 多告诉我一些！我在听！",
-        'ja': f"聞いたよ！君が言った：'{text}'. もっと教えて！聞いているよ！",
-        'ar': f"سمعتك! قلت: '{text}'. قل لي المزيد! أنا أستمع!",
-        'ta': f"நான் கேட்டேன்! நீங்க சொன்னீங்க: '{text}'. மேலும் சொல்லுங்க! கேட்டுக்கிட்டு இருக்கேன்!",
-        'te': f"నేను విన్నాను! మీరు చెప్పారు: '{text}'. ఇంకా చెప్పండి! నేను వింటున్నాను!",
-        'pt': f"Eu ouvi! Você disse: '{text}'. Conte mais! Estou ouvindo!",
-        'ru': f"Я услышал! Ты сказал: '{text}'. Расскажи больше! Я слушаю!"
+        'en': f"I hear you! Tell me more about that!",
+        'hi': f"मैंने सुना! और बताओ!",
+        'es': f"¡Te escuché! ¡Cuéntame más!",
+        'fr': f"Je t'écoute! Dis-moi plus!",
+        'de': f"Ich höre zu! Erzähl mehr!",
+        'zh': f"我听到了！多告诉我一些！",
+        'ja': f"聞いたよ！もっと教えて！",
+        'ar': f"سمعتك! قل لي المزيد!",
+        'ta': f"நான் கேட்டேன்! மேலும் சொல்லுங்க!",
+        'te': f"నేను విన్నాను! ఇంకా చెప్పండి!",
+        'pt': f"Eu ouvi! Conte mais!",
+        'ru': f"Я услышал! Расскажи больше!"
     }
     
     return defaults.get(lang, defaults['en'])
 
-def print_slow(text, delay=0.02):
-    """Print with typing effect - but faster!"""
+def print_slow(text, delay=0.015):
+    """Print with typing effect - FAST!"""
     for char in text:
         print(char, end='', flush=True)
         if char in '.,!?':
-            time.sleep(delay * 3)
+            time.sleep(delay * 2)
         elif char == ' ':
-            time.sleep(delay)
-        else:
             time.sleep(delay * 0.5)
+        else:
+            time.sleep(delay * 0.3)
     print()
+
+def clear_screen():
+    """Clear screen"""
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def main():
     """Main chat function - super simple!"""
-    # Clear screen
-    os.system('cls' if os.name == 'nt' else 'clear')
+    clear_screen()
     
     # Welcome banner
     print(Fore.CYAN + "=" * 50)
-    print(Fore.CYAN + "   🤖 AI-AGENT - Your AI Friend!")
-    print(Fore.CYAN + "   Type anything to chat!")
-    print(Fore.CYAN + "   Type 'quit' to exit")
+    print(Fore.CYAN + "   AI-AGENT - Your AI Friend!")
     print(Fore.CYAN + "=" * 50)
     print()
-    print(Fore.GREEN + "Hi! I'm ready to chat! Say something! 😊")
+    print(Fore.GREEN + "Hi! I'm ready to chat! Say something!")
+    print(Fore.YELLOW + "Type 'help' to see what I can do")
+    print(Fore.YELLOW + "Type 'quit' to exit")
+    print(Fore.CYAN + "=" * 50)
     print()
     
     # Chat loop
@@ -240,7 +277,7 @@ def main():
             # Check for quit
             if user_input.lower() in ['quit', 'exit', 'bye', 'q']:
                 print()
-                print_slow(Fore.YELLOW + "👋 Bye bye! Have a great day! See you soon!")
+                print_slow(Fore.YELLOW + "Bye bye! Have a great day! See you soon!")
                 print()
                 break
             
@@ -255,7 +292,7 @@ def main():
             
         except KeyboardInterrupt:
             print()
-            print(Fore.YELLOW + "\n👋 Bye! See you next time!")
+            print(Fore.YELLOW + "\nBye! See you next time!")
             break
         except Exception as e:
             print(Fore.RED + f"Oops! Something went wrong: {e}")

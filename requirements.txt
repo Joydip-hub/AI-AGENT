@@ -1,8 +1,5 @@
-# Core Dependencies - Lightweight for easy installation
+# AI-AGENT Requirements
+# Just 2 packages - super lightweight!
+
 colorama>=0.4.6
 langdetect>=1.0.9
-python-dotenv>=1.0.0
-
-# Optional: Enhanced features (install separately if needed)
-# googletrans>=4.0.0rc1
-# openai>=1.12.0
