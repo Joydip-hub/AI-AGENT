@@ -1,68 +1,75 @@
 """
-Setup and Installation Script for AI-AGENT
+Setup configuration for AI-AGENT
+Enables pip installation and terminal command usage
 """
 
+from setuptools import setup, find_packages
 import os
-import sys
 
-def create_directories():
-    """Create necessary directories"""
-    directories = [
-        'data/conversations',
-        'logs',
-        'models',
-        'cache'
-    ]
-    
-    for directory in directories:
-        os.makedirs(directory, exist_ok=True)
-        print(f"Created directory: {directory}")
+# Read the README for long description
+def read_readme():
+    with open("README.md", "r", encoding="utf-8") as f:
+        return f.read()
 
-def check_python_version():
-    """Check Python version"""
-    if sys.version_info < (3, 8):
-        print("Error: Python 3.8 or higher is required")
-        sys.exit(1)
-    print(f"Python version: {sys.version}")
+# Read requirements
+def read_requirements():
+    with open("requirements.txt", "r", encoding="utf-8") as f:
+        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
-def install_dependencies():
-    """Install required dependencies"""
-    print("\nInstalling dependencies...")
-    print("Run: pip install -r requirements.txt")
-
-def setup_environment():
-    """Setup environment files"""
-    if not os.path.exists('.env'):
-        if os.path.exists('.env.example'):
-            print("\nCopying .env.example to .env")
-            print("Please edit .env with your API keys")
-    
-    if not os.path.exists('config/config.yaml'):
-        if os.path.exists('config/config.example.yaml'):
-            print("\nCopying config.example.yaml to config.yaml")
-            print("Please edit config.yaml with your settings")
-
-def main():
-    """Main setup function"""
-    print("=" * 60)
-    print("   AI-AGENT Setup")
-    print("=" * 60)
-    print()
-    
-    check_python_version()
-    create_directories()
-    install_dependencies()
-    setup_environment()
-    
-    print("\n" + "=" * 60)
-    print("Setup complete!")
-    print("=" * 60)
-    print("\nNext steps:")
-    print("1. Install dependencies: pip install -r requirements.txt")
-    print("2. Copy .env.example to .env and add your API keys")
-    print("3. Run the chatbot: python main.py")
-    print("   Or simple version: python chat.py")
-    print()
-
-if __name__ == "__main__":
-    main()
+setup(
+    name="ai-agent",
+    version="1.0.0",
+    author="Joydip",
+    author_email="",
+    description="Professional Multilingual AI Chatbot supporting 40+ languages",
+    long_description=read_readme(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/Joydip-hub/AI-AGENT",
+    packages=find_packages(),
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Intended Audience :: End Users/Desktop",
+        "Topic :: Communications :: Chat",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "License :: Other/Proprietary License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Operating System :: OS Independent",
+        "Natural Language :: English",
+        "Natural Language :: Spanish",
+        "Natural Language :: French",
+        "Natural Language :: German",
+        "Natural Language :: Hindi",
+        "Natural Language :: Chinese (Simplified)",
+        "Natural Language :: Japanese",
+        "Natural Language :: Arabic",
+    ],
+    python_requires=">=3.8",
+    install_requires=read_requirements(),
+    entry_points={
+        "console_scripts": [
+            "ai-agent=src.cli:main",
+            "ai-agent-simple=src.cli:simple_main",
+        ],
+    },
+    include_package_data=True,
+    package_data={
+        "src": ["*.py"],
+        "config": ["*.yaml", "*.yml"],
+    },
+    keywords=[
+        "ai", "chatbot", "multilingual", "nlp", "conversation",
+        "language-detection", "artificial-intelligence", "cli",
+        "hindi", "spanish", "french", "arabic", "chinese", "japanese"
+    ],
+    project_urls={
+        "Bug Reports": "https://github.com/Joydip-hub/AI-AGENT/issues",
+        "Source": "https://github.com/Joydip-hub/AI-AGENT",
+        "Documentation": "https://github.com/Joydip-hub/AI-AGENT#readme",
+    },
+)
